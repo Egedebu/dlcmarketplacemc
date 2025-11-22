@@ -1,0 +1,38 @@
+[
+  {
+    "title": "A Minecraft Movie Hero Pack",
+    "image": "https://via.placeholder.com/600x340",
+    "category": "Skin Pack",
+    "author": "Spark Universe",
+    "rating": "4.7",
+    "price": "FREE",
+    "link": "#"
+  },
+  {
+    "title": "Dragon Mounts Legacy",
+    "image": "https://media.forgecdn.net/avatars/thumbnails/192/762/600/600/636879560048413328.png",
+    "category": "Add-on",
+    "author": "The Aether Team",
+    "rating": "4.5",
+    "price": "FREE",
+    "link": "#"
+  },
+  {
+    "title": "Twilight Forest",
+    "image": "https://media.forgecdn.net/avatars/thumbnails/5/846/600/600/635351434594349871.png",
+    "category": "World",
+    "author": "Benimatic",
+    "rating": "4.9",
+    "price": "1340",
+    "link": "#"
+  },
+  {
+    "title": "Modern City Life",
+    "image": "https://via.placeholder.com/600x340",
+    "category": "World",
+    "author": "PixelHeads",
+    "rating": "4.2",
+    "price": "830",
+    "link": "#"
+  }
+]

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Minecraft Mod JSON Editör</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2c2c2c;
+            color: #f0f0f0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background-color: #383838;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #5fec6d;
+            border-bottom: 2px solid #5fec6d;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        /* Butonlar */
+        button, .copy-btn {
+            background-color: #5fec6d;
+            color: #1e1e1e;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button:hover, .copy-btn:hover {
+            background-color: #4ac556;
+        }
+        .delete-btn {
+            background-color: #e53935;
+            color: white;
+        }
+        .delete-btn:hover {
+            background-color: #c62828;
+        }
+        
+        /* Tablo */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #4a4a4a;
+        }
+        th {
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        /* Form Alanları ve Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+        }
+        .modal-content {
+            background-color: #383838;
+            margin: 10% auto;
+            padding: 30px;
+            border: 1px solid #5fec6d;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+        .modal-content label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            border: 1px solid #4a4a4a;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            border-radius: 4px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        /* JSON Çıktı Alanı */
+        #output-section {
+            margin-top: 30px;
+            border-top: 2px solid #5fec6d;
+            padding-top: 20px;
+        }
+        #json-output {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #4a4a4a;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            font-family: 'Courier New', monospace;
+            border-radius: 4px;
+            resize: vertical;
+            margin-top: 10px;
+        }
+        .message {
+            color: #5fec6d;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📦 Minecraft Mod JSON Editörü</h1>
+
+    <p>Bu arayüz, `mods.json` dosyasını görsel olarak düzenlemenizi sağlar. Değişiklikleriniz yalnızca tarayıcınızda geçerli olur. İşiniz bittiğinde, **Güncellenmiş JSON'u Kopyala** butonunu kullanarak yeni veriyi kopyalayıp, sunucunuzdaki `mods.json` dosyasının içeriğiyle değiştirmeniz gerekir.</p>
+
+    <button id="add-mod-btn">➕ Yeni Mod Ekle</button>
+    <div id="loading-message" class="message">JSON yükleniyor...</div>
+    <div id="error-message" class="message" style="color: #e53935;"></div>
+
+    <table id="mod-table">
+        <thead>
+            <tr>
+                <th>Başlık</th>
+                <th>Yazar</th>
+                <th>Kategori</th>
+                <th>Fiyat</th>
+                <th>Puan</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+
+    <div id="output-section">
+        <h2>💾 JSON Çıktısı</h2>
+        <textarea id="json-output" readonly></textarea>
+        <button class="copy-btn" onclick="copyJson()">📋 Güncellenmiş JSON'u Kopyala</button>
+        <div id="copy-status" class="message"></div>
+    </div>
+</div>
+
+<div id="mod-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Mod Bilgilerini Düzenle</h2>
+        <form id="mod-form">
+            <input type="hidden" id="mod-index">
+            
+            <label for="mod-title">Başlık (Title)</label>
+            <input type="text" id="mod-title" required>
+            
+            <label for="mod-author">Yazar (Author)</label>
+            <input type="text" id="mod-author" required>
+            
+            <label for="mod-category">Kategori (Category)</label>
+            <input type="text" id="mod-category">
+            
+            <label for="mod-price">Fiyat (Price - Sayı veya FREE)</label>
+            <input type="text" id="mod-price" required>
+            
+            <label for="mod-rating">Puan (Rating - Örn: 4.5)</label>
+            <input type="text" id="mod-rating">
+            
+            <label for="mod-link">Bağlantı (Link - Örn: #)</label>
+            <input type="text" id="mod-link">
+            
+            <label for="mod-image">Resim URL'si (Image URL)</label>
+            <input type="text" id="mod-image">
+            
+            <button type="submit">Kaydet</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    let modsData = []; // Tüm mod verilerini tutan array
+    const tableBody = document.getElementById('mod-table').getElementsByTagName('tbody')[0];
+    const modal = document.getElementById('mod-modal');
+    const form = document.getElementById('mod-form');
+    const jsonOutput = document.getElementById('json-output');
+
+    // JSON YÜKLEME
+    function loadMods() {
+        document.getElementById('loading-message').style.display = 'block';
+        document.getElementById('error-message').innerText = '';
+
+        fetch('mods.json?t=' + Date.now()) // Önbelleği önlemek için ?t=
+            .then(response => {
+                if (!response.ok) throw new Error('mods.json bulunamadı veya yüklenemedi.');
+                return response.json();
+            })
+            .then(data => {
+                modsData = data;
+                document.getElementById('loading-message').style.display = 'none';
+                renderTable();
+            })
+            .catch(error => {
+                document.getElementById('loading-message').style.display = 'none';
+                document.getElementById('error-message').innerText = 'HATA: ' + error.message;
+            });
+    }
+
+    // TABLOYU ÇİZME
+    function renderTable() {
+        tableBody.innerHTML = '';
+        modsData.forEach((mod, index) => {
+            const row = tableBody.insertRow();
+            row.dataset.index = index;
+
+            // Hücrelere veri ekleme
+            row.insertCell(0).innerText = mod.title || '-';
+            row.insertCell(1).innerText = mod.author || 'Unknown';
+            row.insertCell(2).innerText = mod.category || '-';
+            row.insertCell(3).innerText = mod.price && mod.price.toString().toLowerCase() === 'free' ? 'FREE' : mod.price || 'N/A';
+            row.insertCell(4).innerText = mod.rating || '0.0';
+
+            // İşlemler butonu
+            const actionsCell = row.insertCell(5);
+            
+            const editBtn = document.createElement('button');
+            editBtn.innerText = 'Düzenle';
+            editBtn.onclick = () => openModal(index);
+            actionsCell.appendChild(editBtn);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerText = 'Sil';
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.onclick = () => deleteMod(index);
+            actionsCell.appendChild(deleteBtn);
+        });
+
+        updateJsonOutput();
+    }
+
+    // JSON ÇIKTISINI GÜNCELLEME
+    function updateJsonOutput() {
+        jsonOutput.value = JSON.stringify(modsData, null, 4);
+    }
+
+    // MODAL AÇMA (Ekleme veya Düzenleme)
+    function openModal(index = null) {
+        document.getElementById('mod-index').value = index !== null ? index : '';
+        
+        if (index !== null) {
+            // Düzenleme
+            const mod = modsData[index];
+            document.getElementById('mod-title').value = mod.title || '';
+            document.getElementById('mod-author').value = mod.author || '';
+            document.getElementById('mod-category').value = mod.category || '';
+            document.getElementById('mod-price').value = mod.price || '';
+            document.getElementById('mod-rating').value = mod.rating || '';
+            document.getElementById('mod-link').value = mod.link || '';
+            document.getElementById('mod-image').value = mod.image || '';
+        } else {
+            // Yeni Ekleme
+            form.reset();
+        }
+        modal.style.display = 'block';
+    }
+
+    // MODAL KAPATMA
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    // MODAL KAYDETME
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const index = document.getElementById('mod-index').value;
+        
+        const newMod = {
+            title: document.getElementById('mod-title').value,
+            author: document.getElementById('mod-author').value,
+            category: document.getElementById('mod-category').value,
+            price: document.getElementById('mod-price').value,
+            rating: document.getElementById('mod-rating').value,
+            link: document.getElementById('mod-link').value,
+            image: document.getElementById('mod-image').value
+        };
+
+        // Değerleri temizle (Sadece boş değilse ekle)
+        Object.keys(newMod).forEach(key => (newMod[key] === '') && delete newMod[key]);
+
+        if (index !== '') {
+            // Düzenleme
+            modsData[parseInt(index)] = newMod;
+        } else {
+            // Yeni Ekleme
+            modsData.push(newMod);
+        }
+
+        renderTable();
+        closeModal();
+    });
+
+    // MOD SİLME
+    function deleteMod(index) {
+        if (confirm(`${modsData[index].title} başlıklı modu silmek istediğinizden emin misiniz?`)) {
+            modsData.splice(index, 1);
+            renderTable();
+        }
+    }
+
+    // JSON KOPYALAMA
+    function copyJson() {
+        jsonOutput.select();
+        document.execCommand('copy');
+        const status = document.getElementById('copy-status');
+        status.innerText = '✅ JSON başarıyla panoya kopyalandı!';
+        setTimeout(() => status.innerText = '', 3000);
+    }
+
+    // Olay Dinleyicileri
+    document.getElementById('add-mod-btn').onclick = () => openModal(null);
+    document.getElementsByClassName('close')[0].onclick = closeModal;
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
+    // Başlangıçta modları yükle
+    loadMods();
+
+</script>
+
+</body>
+</html>

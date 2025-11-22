@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>Minecraft Marketplace: ALL MODS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="css/webui-mc-components.min.css" type="text/css">
+    <link rel="stylesheet" href="css/clientlibs-clientlib-site.min.1074220251031114404200069052661762847125888.css" type="text/css">
+    <link rel="shortcut icon" type="image/x-icon" href="favicons/resources-favicon.ico">
+
+    <style>
+        /* ************************************************* */
+        /* 1. ÖZEL FONT TANIMLAMASI */
+        /* fonts/fonts-Minecraft-Tenv2.ttf dosyasını yüklüyoruz */
+        @font-face {
+            font-family: 'MinecraftFont';
+            src: url('fonts/fonts-Minecraft-Tenv2.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* GENEL FONT AYARI */
+        body, h1, h2, h3, p, a, div {
+            font-family: 'Noto Sans', sans-serif !important;
+        }
+        .mc-card-title {
+            font-weight: 800 !important; 
+        }
+
+        /* ************************************************* */
+        /* MC FONT UYGULAMASI (GÖLGE/KENAR ÇİZGİSİ YOK) */
+        /* ************************************************* */
+        .MC_Heading_2, .MC_linkListC_tileHeading {
+            /* Font artık direkt TTF dosyasından geliyor */
+            font-family: 'MinecraftFont', "Noto Sans", sans-serif !important; 
+            color: white !important;
+            font-weight: normal !important; 
+            
+            /* text-shadow ve text-stroke kuralları kaldırıldı. */
+            text-shadow: none !important;
+            -webkit-text-stroke: none !important; 
+            text-stroke: none !important;
+        }
+
+        .MC_linkListC_tileHeading {
+            font-size: 16px !important;
+            line-height: 1.2;
+        }
+        /* ************************************************* */
+
+
+        /* 2. ANA GRID AYARI */
+        #all-mods-container {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            width: 100%;
+            margin: 0 -15px; 
+        }
+
+        .mod-grid-item {
+            padding: 0 15px; 
+            margin-bottom: 30px;
+            display: block !important;
+        }
+
+        /* ************************************************* */
+        /* GENİŞLİK AYARLARI (YAN YANA 5 ADET İÇİN) */
+        /* ************************************************* */
+        
+        /* 5'Lİ GÖRÜNÜM (Varsayılan/Masaüstü): %20 genişlik */
+        .mod-grid-item {
+            width: 20%; 
+            flex-basis: 20%; 
+        }
+
+        /* 4'LÜ GÖRÜNÜM (Tablet / 1200px altı): %25 genişlik */
+        @media (max-width: 1200px) {
+            .mod-grid-item {
+                width: 25%;
+                flex-basis: 25%;
+            }
+        }
+
+        /* 2'Lİ GÖRÜNÜM (Küçük Tablet / 768px altı): %50 genişlik */
+        @media (max-width: 768px) {
+            .mod-grid-item {
+                width: 50%;
+                flex-basis: 50%;
+            }
+        }
+        
+        /* 1'Lİ GÖRÜNÜM (Telefonlar / 576px altı): %100 genişlik */
+        @media (max-width: 576px) {
+            .mod-grid-item {
+                width: 100%;
+                flex-basis: 100%;
+            }
+        }
+        /* ************************************************* */
+
+
+        /* 3. KART TASARIMI VE GÖLGE */
+        .mc-card {
+            background-color: #1e1e1e; 
+            height: 100%; 
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out, background-color 0.3s ease-out;
+            text-decoration: none !important;
+            position: relative;
+            border-radius: 4px; /* Hafif yuvarlak köşeler */
+            /* BAŞLANGIÇ GÖLGESİ */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05); /* İç ve dış hafif gri gölge */
+            overflow: hidden; /* Resmin dışarı taşmasını engelle */
+        }
+
+        /* 4. ÜSTÜNE GELİNCE BÜYÜME VE GÖLGELER */
+        .mc-card:hover {
+            transform: translateY(-8px) scale(1.02); /* Hafif yukarı kalkar ve büyür */
+            background-color: #2a2a2a; /* Rengi biraz açılır */
+            /* HOVER GÖLGESİ */
+            box-shadow: 0 12px 25px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1); 
+        }
+
+        /* 5. RESİM ALANI VE HOVER EFECTİ */
+        .mc-card-img-wrapper {
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Oranı */
+            position: relative;
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        .mc-card-img-wrapper img {
+            position: absolute;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease-out; /* Resim büyütme animasyonu */
+        }
+
+        /* Resim hover efekti: Hafifçe yakınlaşır */
+        .mc-card:hover .mc-card-img-wrapper img {
+            transform: scale(1.05);
+        }
+
+        /* 6. İÇERİK VE BAŞLIK KONTROLÜ (Kutuların Sünmemesi İçin) */
+        .mc-card-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: space-between; /* İçeriği dağıtır */
+        }
+
+        /* Başlık Yüksekliği Kontrolü: 2 satırı geçmesin */
+        .mc-title-area {
+            min-height: 40px; /* Yaklaşık 2 satır başlık için boşluk */
+            max-height: 40px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+        .mc-card-title {
+            color: #ffffff;
+            font-size: 16px;
+            line-height: 1.25;
+            margin: 0;
+        }
+
+        /* Yazar/Kategori */
+        .mc-card-author {
+            color: #a8a8a8;
+            font-size: 13px;
+            margin-bottom: 12px;
+            min-height: 20px; /* Sabit yükseklik */
+            display: flex;
+            align-items: center;
+        }
+        
+        .mc-badge {
+            background: rgba(255,255,255,0.15);
+            padding: 2px 6px;
+            border-radius: 2px;
+            margin-right: 6px;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #ddd;
+            white-space: nowrap;
+        }
+
+        /* Alt Bilgi (Footer) */
+        .mc-card-footer {
+            margin-top: auto; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid #363636;
+        }
+
+        .mc-rating {
+            display: flex;
+            align-items: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .mc-price-tag {
+            display: flex;
+            align-items: center;
+            font-weight: 800;
+            font-size: 15px;
+        }
+        .mc-price-free { color: #5fec6d; }
+    </style>
+</head>
+
+<body class="page basicpage MC_Bg_Core__off-black">
+
+<div class="root container responsivegrid">
+    <div id="main-content" class="cmp-container MC_Layout_Marketplace" role="main">
+        <div class="aem-Grid aem-Grid--12 aem-Grid--default--12 ">
+            <div class="container responsivegrid aem-GridColumn aem-GridColumn--default--12">
+                <div class="cmp-container MC_Layout_Marketplace">
+                    <div class="content-component aem-GridColumn aem-GridColumn--default--12">
+                        
+                        <div id="marketplaceCatalogApp" class="MC_marketplaceCatalogApp MC_marketplaceCatalogApp_catalog">
+                            
+                            <section class="MC_Theme_Vanilla MC_Bg_Core__off-black">
+                                <div class="MC_marketplaceHeroA ">
+                                    <div class="MC_marketplaceHeroA_header">
+                                        <div class="MC_marketplaceHeroA_header_leftBg"></div>
+                                        <div class="MC_marketplaceHeroA_header_meta">
+                                            <img class="MC_marketplaceHeroA_header_metaLogo" src="https://i.ibb.co/jvfsrLJk/Ads-z-tasar-m.png" loading="lazy" alt="Minecraft Marketplace">
+                                            <p>Upgrade your gameplay with Minecraft DLC.</p>
+                                        </div>
+                                        <div class="MC_marketplaceHeroA_header_rightBg"></div>
+                                    </div>
+                                    
+                                    <div class="MC_marketplaceHeroA_search">
+                                        <div class="MC_SearchBoxB">
+                                            <form class="MC_SearchBoxB_form" onsubmit="return false;">
+                                                <label class="MC_SearchBoxB_label" for="jsonSearchInput">Search</label>
+                                                <div class="MC_SearchBoxB_form-container">
+                                                    <input class="MC_SearchBoxB_input" autocomplete="off" name="q" type="search" id="jsonSearchInput" placeholder="Search ALL MODS..." maxlength="200">
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            
+                            <section class="MC_Bg_Core__off-black MC_Theme_Vanilla MC_Core_HeadingStyle">
+                                <div class="MC_linkListC">
+                                    <div class="MC_linkListC_header"><h2 class="MC_Heading_2">Categories</h2></div>
+                                    <nav aria-label="Category">
+                                        <ul class="MC_linkListC_tiles">
+                                            <li><a class="MC_linkListC_tile" href="#"><p class="MC_linkListC_tileHeading">Add-Ons</p></a></li>
+                                            <li><a class="MC_linkListC_tile" href="#"><p class="MC_linkListC_tileHeading">Skin Packs</p></a></li>
+                                            <li><a class="MC_linkListC_tile" href="#"><p class="MC_linkListC_tileHeading">Texture Packs</p></a></li>
+                                            <li><a class="MC_linkListC_tile" href="#"><p class="MC_linkListC_tileHeading">Mash-Up Packs</p></a></li>
+                                            <li><a class="MC_linkListC_tile" href="#"><p class="MC_linkListC_tileHeading">Adventure Maps</p></a></li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </section>
+                    
+                            <section class="MC_Bg_Core__off-black MC_Theme_Vanilla MC_Core_HeadingStyle">
+                                <div class="MC_Carousel MC_CarouselO">
+                                    <div class="MC_Carousel_header">
+                                        <div class="MC_Carousel_header_wrapper">
+                                            <h2 class="MC_Heading_2 MC_Carousel_header_heading">ALL MODS</h2>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="MC_Carousel_track_wrapper" style="padding: 0 20px 60px 20px;">
+                                        
+                                        <div id="all-mods-container" class="aem-Grid aem-Grid--12">
+                                            <p style="color: white; padding: 20px;">Loading mods...</p>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </section>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/webui-mc-components.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const container = document.getElementById('all-mods-container');
+        const searchInput = document.getElementById('jsonSearchInput');
+        let allMods = [];
+
+        // SVG İkonları (Altın Yıldız ve Minecoin)
+        const starSVG = `<svg width="16" height="16" viewBox="0 0 24 24" style="fill:#FFD700; margin-right:4px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+        const coinSVG = `<svg width="16" height="16" viewBox="0 0 24 24" style="fill:#FFD700; margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10z" fill="#D4AF37"/><path d="M8 7v10h2.5l1.5-4 1.5 4H16V7h-2v6l-2-5-2 5V7H8z" fill="#7b5e00"/></svg>`;
+
+        // JSON Çekme İşlemi
+        fetch('mods.json?t=' + Date.now())
+            .then(response => {
+                if (!response.ok) throw new Error("JSON dosyası bulunamadı.");
+                return response.json();
+            })
+            .then(data => {
+                allMods = data;
+                renderMods(allMods);
+            })
+            .catch(error => {
+                console.error(error);
+                container.innerHTML = `<p style="color:red; padding:20px;">Hata: mods.json yüklenemedi. Lütfen dosyanın adını ve konumunu kontrol edin.</p>`;
+            });
+
+        function renderMods(mods) {
+            container.innerHTML = '';
+
+            if (!mods || mods.length === 0) {
+                container.innerHTML = '<p style="color:#ccc; padding:20px;">Mod bulunamadı.</p>';
+                return;
+            }
+
+            mods.forEach(mod => {
+                const img = mod.image || 'https://via.placeholder.com/600x340';
+                
+                let priceDisplay;
+                if (mod.price && (mod.price.toString().toLowerCase() === 'free' || mod.price === '0')) {
+                    priceDisplay = `<span class="mc-price-tag mc-price-free">FREE</span>`;
+                } else {
+                    priceDisplay = `<span class="mc-price-tag mc-price-coin">${coinSVG} ${mod.price}</span>`;
+                }
+
+                const categoryBadge = mod.category ? `<span class="mc-badge">${mod.category}</span>` : '';
+
+                const html = `
+                <div class="mod-grid-item aem-GridColumn aem-GridColumn--phone--12">
+                    <a href="${mod.link || '#'}" class="mc-card">
+                        
+                        <div class="mc-card-img-wrapper">
+                            <img src="${img}" alt="${mod.title}">
+                        </div>
+
+                        <div class="mc-card-body">
+                            
+                            <div class="mc-title-area">
+                                <div class="mc-card-title">${mod.title}</div>
+                            </div>
+                            
+                            <div class="mc-card-author">
+                                ${categoryBadge} by ${mod.author || 'Unknown'}
+                            </div>
+                            
+                            <div class="mc-card-footer">
+                                <div class="mc-rating">
+                                    ${starSVG} ${mod.rating || '0.0'}
+                                </div>
+                                <div>
+                                    ${priceDisplay}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                `;
+                
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        searchInput.addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            renderMods(allMods.filter(m => m.title.toLowerCase().includes(term)));
+        });
+    });
+</script>
+
+</body>
+</html>
